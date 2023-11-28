@@ -179,6 +179,9 @@ void setupReleaseDeployJob() {
         NEXUS_RELEASE_REPOSITORY_ID: "${MAVEN_NEXUS_RELEASE_REPOSITORY}",
         NEXUS_STAGING_PROFILE_ID: "${MAVEN_NEXUS_STAGING_PROFILE_ID}",
         NEXUS_BUILD_PROMOTION_PROFILE_ID: "${MAVEN_NEXUS_BUILD_PROMOTION_PROFILE_ID}",
+
+        GRADLE_PUBLISH_KEY: "${GRADLE_PUBLISH_KEY}",
+        GRADLE_PUBLISH_SECRET: "${GRADLE_PUBLISH_SECRET}",
     ])
     KogitoJobTemplate.createPipelineJob(this, jobParams)?.with {
         parameters {
@@ -216,6 +219,9 @@ void setupReleasePromoteJob() {
         MAVEN_SETTINGS_CONFIG_FILE_ID: "${MAVEN_SETTINGS_FILE_ID}",
         MAVEN_DEPENDENCIES_REPOSITORY: "${MAVEN_ARTIFACTS_REPOSITORY}",
         MAVEN_DEPLOY_REPOSITORY: "${MAVEN_ARTIFACTS_REPOSITORY}",
+
+        GRADLE_PUBLISH_KEY: "${GRADLE_PUBLISH_KEY}",
+        GRADLE_PUBLISH_SECRET: "${GRADLE_PUBLISH_SECRET}",
     ])
     KogitoJobTemplate.createPipelineJob(this, jobParams)?.with {
         parameters {

@@ -1,0 +1,87 @@
+plugins {
+    id 'com.gradle.plugin-publish' version "${gradlePluginVersion}"
+}
+
+description = """
+This plugin adds support for using Kogito.
+"""
+ext.isReleaseVersion = !version.endsWith('SNAPSHOT')
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    implementation platform("org.kie.kogito:kogito-pmml-dependencies:${version}")
+    implementation platform("org.kie.kogito:kogito-kie-bom:${version}")
+    new groovy.xml.XmlSlurper().parse("$projectDir/pom.xml").dependencies.dependency.each {
+        if (it.groupId != "dev.gradleplugins") {
+            def dep = "${it.groupId}:${it.artifactId}"
+            def scope = it.scope.text() ? it.scope.text() : 'compile'
+            if (scope == 'compile') {
+                add('implementation', dep)
+            } else if (scope == 'test') {
+                add('testImplementation', dep)
+            } else {
+                throw new Exception("Unrecognized dependency scope: $scope")
+            }
+        }
+    }
+}
+
+java {
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Kogito Gradle Plugin'
+                description = project.description
+                licenses {
+                    license {
+                        name = 'The Apache Software License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'jmusacchio'
+                        name = 'Juan Manuel Musacchio'
+                        email = 'juan.musacchio@gmail.com'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/kiegroup/kogito-runtimes'
+                    connection = 'scm:git:git://github.com/kiegroup/kogito-runtimes.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:kiegroup/kogito-runtimes.git'
+                }
+                issueManagement {
+                    system = 'GitHub'
+                    url = 'https://github.com/kiegroup/kogito-runtimes/issues'
+                }
+            }
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        kogitoGenerator {
+            id = 'org.kie.kogito.gradle.plugin'
+            implementationClass = 'org.kie.kogito.gradle.plugin.KogitoPlugin'
+            displayName = 'Kogito Generator Gradle Plugin'
+            description = project.description
+        }
+    }
+}
+
+pluginBundle {
+    website = 'https://github.com/kiegroup/kogito-runtimes'
+    vcsUrl = 'https://github.com/kiegroup/kogito-runtimes.git'
+    tags = [ 'kogito', 'bpmn', 'drl', 'dmn', 'optaPlanner']
+}
